@@ -39,11 +39,10 @@ import cn.chuanwise.onebot.lib.v11.data.message.TextData
 import cn.chuanwise.onebot.lib.v11.utils.getObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
-import java.net.URL
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
+import java.net.URL
 
 class OneBot11LibTest {
     companion object {
@@ -76,11 +75,11 @@ class OneBot11LibTest {
             return resourceURL
         }
 
-        @JvmStatic
-        @AfterAll
-        fun afterAll() {
-            appConnection.close()
-        }
+//        @JvmStatic
+//        @AfterAll
+//        fun afterAll() {
+//            appConnection.close()
+//        }
     }
 
     private val singleTextMessageData = SingleMessageData(
@@ -464,7 +463,7 @@ class OneBot11LibTest {
             userID = null,
             groupID = configurations.botIsAdminGroupID
         )
-        val image = when(val data = appConnection.getMessage(messageID).message){
+        val image = when (val data = appConnection.getMessage(messageID).message) {
             is ArrayMessageData -> data.data.firstOrNull()?.data as ImageData
             is SingleMessageData -> data.data as ImageData
             else -> throw IllegalStateException()

@@ -16,6 +16,7 @@
 
 package cn.chuanwise.onebot.lib
 
+import cn.chuanwise.onebot.lib.ReverseWebSocketConnection.State
 import com.fasterxml.jackson.databind.JsonNode
 import io.github.oshai.kotlinlogging.KLogger
 import io.ktor.client.HttpClient
@@ -25,17 +26,19 @@ import io.ktor.client.request.header
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.WebSocketSession
 import io.ktor.websocket.close
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.concurrent.read
-import kotlin.concurrent.write
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.CancellationException
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
 
 interface WebSocketConnectionConfiguration {
     val maxConnectAttempts: Int?
@@ -128,6 +131,14 @@ abstract class WebSocketConnection(
 
                 try {
                     receivingLoop.receive(this, ::onReceive)
+                } catch (_: CancellationException) {
+                    // receiving cancelled, caused by closing
+                    if (state != State.DISCONNECTED) {
+                        throw IllegalStateException(
+                            "Unexpected state: $state " +
+                                    "when java.util.concurrent.CancellationException thrown in receiving loop."
+                        )
+                    }
                 } catch (throwable: Throwable) {
                     logger.error(throwable) { "Exception occurred in session" }
                 } finally {
@@ -174,11 +185,21 @@ abstract class WebSocketConnection(
     }
 
     override fun close() {
-        lock.write {
-            stateWithoutLock = State.DISCONNECTED
-            sessionWithoutLock = null
-            client.close()
+        lock.read {
+            when (stateWithoutLock) {
+                State.DISCONNECTED -> throw IllegalStateException("Connection already closed.")
+                State.CONNECTED -> runBlocking {
+                    disconnect(CloseReason(CloseReason.Codes.NORMAL, "Connection closed."))
+                }
+
+                State.INITIALIZED, State.CONNECTING, State.WAITING -> Unit
+            }
+            lock.write {
+                stateWithoutLock = State.DISCONNECTED
+                sessionWithoutLock = null
+                client.close()
+                coroutineScope.cancel("Connection closed.")
+            }
         }
-        coroutineScope.cancel("Connection closed.")
     }
 }

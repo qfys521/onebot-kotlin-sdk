@@ -42,11 +42,11 @@ import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 
 data class OneBot11AppReverseWebSocketConnectionConfiguration(
@@ -149,31 +149,55 @@ class OneBot11AppReverseWebSocketConnection private constructor(
             OK -> resp.data?.deserializeTo(objectMapper, expect.respType) ?: Unit as R
             ASYNC -> {
                 if (expect.respType.type != Unit::class.java) {
-                    throw IllegalStateException("Not async response.")
+                    throwResponseException("Unexpected response status: async", resp.message) {
+                        throw IllegalStateException(it)
+                    }
                 } else Unit as R
             }
-            FAILED -> throw IllegalStateException("Failed.")
-            else -> throw IllegalStateException("Unknown error.")
+
+            FAILED -> throwResponseException("Operation failed", resp.message) {
+                throw IllegalStateException(it)
+            }
+
+            else -> throwResponseException("Unexpected response status: ${resp.status}", resp.message) {
+                throw IllegalStateException(it)
+            }
         }
     }
 
     override suspend fun <P> callAsync(expect: Expect<P, *>, params: P) {
         val resp = doCall(session, receivingLoop, objectMapper, logger, expect, params, CallPolicy.ASYNC)
         return when (resp.status) {
-            OK -> throw IllegalStateException("Not async response.")
+            OK -> throwResponseException("Unexpected response status: sync", resp.message) {
+                throw IllegalStateException(it)
+            }
+
             ASYNC -> Unit
-            FAILED -> throw IllegalStateException("Failed.")
-            else -> throw IllegalStateException("Unknown error.")
+            FAILED -> throwResponseException("Operation failed", resp.message) {
+                throw IllegalStateException(it)
+            }
+
+            else -> throwResponseException("Unexpected response status: ${resp.status}", resp.message) {
+                throw IllegalStateException(it)
+            }
         }
     }
 
     override suspend fun <P> callRateLimited(expect: Expect<P, *>, params: P) {
         val resp = doCall(session, receivingLoop, objectMapper, logger, expect, params, CallPolicy.RATE_LIMITED)
         return when (resp.status) {
-            OK -> throw IllegalStateException("Not async response.")
+            OK -> throwResponseException("Unexpected response status: sync", resp.message) {
+                throw IllegalStateException(it)
+            }
+
             ASYNC -> Unit
-            FAILED -> throw IllegalStateException("Failed.")
-            else -> throw IllegalStateException("Unknown error.")
+            FAILED -> throwResponseException("Operation failed", resp.message) {
+                throw IllegalStateException(it)
+            }
+
+            else -> throwResponseException("Unexpected response status: ${resp.status}", resp.message) {
+                throw IllegalStateException(it)
+            }
         }
     }
 

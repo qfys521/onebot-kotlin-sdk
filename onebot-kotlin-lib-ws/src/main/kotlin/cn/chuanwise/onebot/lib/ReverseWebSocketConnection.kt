@@ -33,15 +33,17 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.WebSocketSession
 import io.ktor.websocket.close
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 
 interface ReverseWebSocketConnectionConfiguration {
     val host: String
@@ -164,6 +166,14 @@ abstract class ReverseWebSocketConnection(
 
                 try {
                     receivingLoop.receive(this, ::onReceive)
+                } catch (_: CancellationException) {
+                    // receiving cancelled, caused by closing
+                    if (state != State.CLOSED) {
+                        throw IllegalStateException(
+                            "Unexpected state: $state " +
+                                    "when java.util.concurrent.CancellationException thrown in receiving loop."
+                        )
+                    }
                 } catch (throwable: Throwable) {
                     logger.error(throwable) { "Exception occurred in session" }
                 } finally {
@@ -209,11 +219,21 @@ abstract class ReverseWebSocketConnection(
     }
 
     override fun close() {
-        lock.write {
-            stateWithoutLock = State.CLOSED
-            sessionWithoutLock = null
-            server.stop()
+        lock.read {
+            when (stateWithoutLock) {
+                State.CLOSED -> throw IllegalStateException("Connection already closed.")
+                State.CONNECTED -> runBlocking {
+                    disconnect(CloseReason(CloseReason.Codes.NORMAL, "Connection closed."))
+                }
+
+                State.WAITING -> Unit
+            }
+            lock.write {
+                stateWithoutLock = State.CLOSED
+                sessionWithoutLock = null
+                server.stop()
+                coroutineScope.cancel("Connection closed.")
+            }
         }
-        coroutineScope.cancel("Connection closed.")
     }
 }

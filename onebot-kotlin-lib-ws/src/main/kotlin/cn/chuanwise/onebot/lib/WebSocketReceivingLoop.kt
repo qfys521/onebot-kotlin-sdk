@@ -23,10 +23,10 @@ import io.github.oshai.kotlinlogging.KLogger
 import io.ktor.websocket.DefaultWebSocketSession
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * WebSocket receiving loop, to handle incoming messages.

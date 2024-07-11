@@ -294,13 +294,13 @@ suspend fun OneBot11AppConnection.setGroupAnonymousBanRateLimited(groupID: Long,
  */
 suspend fun OneBot11AppConnection.setGroupAnonymousBan(groupID: Long, sender: AnonymousSenderData, duration: Long) =
     call(
-    SET_GROUP_ANONYMOUS_BAN, SetGroupAnonymousBanData(
-        groupID = groupID,
-        anonymous = sender,
-        flag = null,
-        duration = duration
+        SET_GROUP_ANONYMOUS_BAN, SetGroupAnonymousBanData(
+            groupID = groupID,
+            anonymous = sender,
+            flag = null,
+            duration = duration
+        )
     )
-)
 
 suspend fun OneBot11AppConnection.setGroupAnonymousBanAsync(
     groupID: Long,
@@ -538,12 +538,12 @@ suspend fun OneBot11AppConnection.setFriendAddRequest(flag: String, approve: Boo
 
 suspend fun OneBot11AppConnection.setFriendAddRequestAsync(flag: String, approve: Boolean, remark: String? = null) =
     callAsync(
-    SET_FRIEND_ADD_REQUEST, SetFriendAddRequestData(
-        flag = flag,
-        approve = approve,
-        remark = remark
+        SET_FRIEND_ADD_REQUEST, SetFriendAddRequestData(
+            flag = flag,
+            approve = approve,
+            remark = remark
+        )
     )
-)
 
 suspend fun OneBot11AppConnection.setFriendAddRequestRateLimited(
     flag: String,
@@ -563,13 +563,13 @@ suspend fun OneBot11AppConnection.setFriendAddRequestRateLimited(
  */
 suspend fun OneBot11AppConnection.setGroupAddRequest(flag: String, subType: String, approve: Boolean, reason: String) =
     call(
-    SET_GROUP_ADD_REQUEST, SetGroupAddRequestData(
-        flag = flag,
-        approve = approve,
-        subType = subType,
-        reason = reason
+        SET_GROUP_ADD_REQUEST, SetGroupAddRequestData(
+            flag = flag,
+            approve = approve,
+            subType = subType,
+            reason = reason
+        )
     )
-)
 
 suspend fun OneBot11AppConnection.setGroupAddRequestAsync(
     flag: String,

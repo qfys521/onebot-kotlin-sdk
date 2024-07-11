@@ -23,6 +23,7 @@
  * @author Chuanwise
  */
 @file:JvmName("OneBot11Actions")
+
 package cn.chuanwise.onebot.lib.v11
 
 import cn.chuanwise.onebot.lib.Action

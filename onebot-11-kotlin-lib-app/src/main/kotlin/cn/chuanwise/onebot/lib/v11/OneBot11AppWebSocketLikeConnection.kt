@@ -20,12 +20,13 @@ import cn.chuanwise.onebot.lib.Action
 import cn.chuanwise.onebot.lib.AppWebSocketReceivingLoop
 import cn.chuanwise.onebot.lib.Expect
 import cn.chuanwise.onebot.lib.deserializeTo
-import cn.chuanwise.onebot.lib.v11.data.ASYNC_RETCODE
-import cn.chuanwise.onebot.lib.v11.data.BAD_REQUEST_HTTP_RETCODE
-import cn.chuanwise.onebot.lib.v11.data.BAD_REQUEST_WEB_SOCKET_RETCODE
-import cn.chuanwise.onebot.lib.v11.data.SUCCESS_RETCODE
-import cn.chuanwise.onebot.lib.v11.data.UNSUPPORTED_OPERATION_HTTP_RETCODE
-import cn.chuanwise.onebot.lib.v11.data.UNSUPPORTED_OPERATION_WEB_SOCKET_RETCODE
+import cn.chuanwise.onebot.lib.v11.data.ASYNC_RET_CODE
+import cn.chuanwise.onebot.lib.v11.data.BAD_REQUEST_HTTP_RET_CODE
+import cn.chuanwise.onebot.lib.v11.data.BAD_REQUEST_WEB_SOCKET_RET_CODE
+import cn.chuanwise.onebot.lib.v11.data.SUCCESS_HTTP_RET_CODE
+import cn.chuanwise.onebot.lib.v11.data.SUCCESS_RET_CODE
+import cn.chuanwise.onebot.lib.v11.data.UNSUPPORTED_OPERATION_HTTP_RET_CODE
+import cn.chuanwise.onebot.lib.v11.data.UNSUPPORTED_OPERATION_WEB_SOCKET_RET_CODE
 import cn.chuanwise.onebot.lib.v11.data.action.ActionRequestPack
 import cn.chuanwise.onebot.lib.v11.data.action.ResponseData
 import com.fasterxml.jackson.databind.JsonNode
@@ -47,19 +48,20 @@ enum class CallPolicy(val suffix: String = "") {
     RATE_LIMITED("_rate_limited"),
 }
 
-private fun throwWithHTTPStyleRetCodeWarning(
-    message: String,
-    got: Int,
-    expect: Int,
+fun throwResponseException(
+    reason: String,
+    message: String?,
     exceptionThrower: (String) -> Nothing
 ): Nothing {
-    exceptionThrower(
-        message +
-                "(warning that OneBot implementation returns HTTP-style $got, " +
-                "not standard WebSocket-style $expect, " +
-                "see https://github.com/botuniverse/onebot-11/blob/master/communication/ws.md)."
-    )
+    val exceptionMessage = if (message == null) "$reason. " else "$reason: $message"
+    exceptionThrower(exceptionMessage)
 }
+
+private fun formatHttpStyleRetCodeWarning(
+    got: Int,
+    expect: Int
+) = "(warning that OneBot implementation returns HTTP-style $got, not standard WebSocket-style $expect, " +
+        "see https://github.com/botuniverse/onebot-11/blob/master/communication/ws.md)."
 
 suspend fun <P> doCall(
     session: WebSocketSession?,
@@ -96,16 +98,32 @@ suspend fun <P> doCall(
         val resp = node.deserializeTo<ResponseData<JsonNode?>>(objectMapper)
 
         return when (resp.retCode) {
-            SUCCESS_RETCODE, ASYNC_RETCODE -> resp
-            UNSUPPORTED_OPERATION_WEB_SOCKET_RETCODE -> throw UnsupportedOperationException("Unsupported operation.")
-            UNSUPPORTED_OPERATION_HTTP_RETCODE -> throwWithHTTPStyleRetCodeWarning(
-                "Unsupported operation.", resp.retCode, UNSUPPORTED_OPERATION_WEB_SOCKET_RETCODE
-            ) { throw UnsupportedOperationException(it) }
+            SUCCESS_RET_CODE, ASYNC_RET_CODE -> resp
+            SUCCESS_HTTP_RET_CODE -> resp
 
-            BAD_REQUEST_WEB_SOCKET_RETCODE -> throw IllegalArgumentException("Bad request.")
-            BAD_REQUEST_HTTP_RETCODE -> throwWithHTTPStyleRetCodeWarning(
-                "Bad request.", resp.retCode, BAD_REQUEST_WEB_SOCKET_RETCODE
-            ) { throw IllegalArgumentException(it) }
+            UNSUPPORTED_OPERATION_WEB_SOCKET_RET_CODE -> throwResponseException("Unsupported operation", resp.message) {
+                throw UnsupportedOperationException(it)
+            }
+
+            UNSUPPORTED_OPERATION_HTTP_RET_CODE -> throwResponseException("Unsupported operation", resp.message) {
+                throw UnsupportedOperationException(
+                    it + formatHttpStyleRetCodeWarning(
+                        resp.retCode, UNSUPPORTED_OPERATION_WEB_SOCKET_RET_CODE
+                    )
+                )
+            }
+
+            BAD_REQUEST_WEB_SOCKET_RET_CODE -> throwResponseException("Bad request", resp.message) {
+                throw IllegalArgumentException(it)
+            }
+
+            BAD_REQUEST_HTTP_RET_CODE -> throwResponseException("Bad request", resp.message) {
+                throw IllegalArgumentException(
+                    it + formatHttpStyleRetCodeWarning(
+                        resp.retCode, BAD_REQUEST_WEB_SOCKET_RET_CODE
+                    )
+                )
+            }
 
             else -> throw NoSuchElementException("Unexpected response return code: ${resp.retCode}.")
         }

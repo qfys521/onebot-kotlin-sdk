@@ -18,6 +18,7 @@ package cn.chuanwise.onebot.lib.v11.data.action
 
 import cn.chuanwise.onebot.lib.DATA
 import cn.chuanwise.onebot.lib.ECHO
+import cn.chuanwise.onebot.lib.MESSAGE
 import cn.chuanwise.onebot.lib.RETCODE
 import cn.chuanwise.onebot.lib.STATUS
 import cn.chuanwise.onebot.lib.getNotNull
@@ -45,7 +46,10 @@ data class ResponseData<T>(
     val retCode: Int,
 
     val data: T? = null,
-    val echo: String? = null
+    val echo: String? = null,
+
+    // for some non-standard implementations such as LLoneOneBot.
+    val message: String? = null
 ) : OneBot11ToAppPack
 
 
@@ -59,7 +63,8 @@ object ResponseDataDeserializer : StdDeserializer<ResponseData<*>>(ResponseData:
         val retCode = node.getNotNull(RETCODE).asInt()
         val echo = node.getOptionalNullable(ECHO)?.asText()
         val data = node.getOptionalNullable(DATA)
+        val message = node.getOptionalNullable(MESSAGE)?.asText()
 
-        return ResponseData(status, retCode, data, echo)
+        return ResponseData(status, retCode, data, echo, message)
     }
 }

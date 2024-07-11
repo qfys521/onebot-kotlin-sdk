@@ -111,7 +111,7 @@ data class SingleMessageData(
 @JsonSerialize(using = ArrayMessageDataSerializer::class)
 data class ArrayMessageData(
     val data: List<SingleMessageData>
-): MessageData()
+) : MessageData()
 
 object ArrayMessageDataSerializer : StdSerializer<ArrayMessageData>(ArrayMessageData::class.java) {
     private fun readResolve(): Any = ArrayMessageDataSerializer
@@ -300,6 +300,7 @@ object MessageDataDeserializer : StdDeserializer<MessageData>(MessageData::class
                     it.deserializeTo<SingleMessageData>(ctxt)
                 }
             )
+
             is ObjectNode -> {
                 val type = node.getNotNull(TYPE).asText()
                 val data = node.getOptionalNullable(DATA)
@@ -334,6 +335,7 @@ object MessageDataDeserializer : StdDeserializer<MessageData>(MessageData::class
                     }
                 )
             }
+
             else -> throw IllegalArgumentException("Unexpected message data: $node")
         }
     }
