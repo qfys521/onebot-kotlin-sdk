@@ -30,8 +30,8 @@ import cn.chuanwise.onebot.lib.v11.data.event.FriendAddRequestQuickOperationData
 import cn.chuanwise.onebot.lib.v11.data.event.GroupMessageMessageMessageQuickOperationData
 import cn.chuanwise.onebot.lib.v11.data.message.ArrayMessageData
 import cn.chuanwise.onebot.lib.v11.data.message.AtData
-import cn.chuanwise.onebot.lib.v11.data.message.CQCodeMessageData
-import cn.chuanwise.onebot.lib.v11.data.message.IDTag
+import cn.chuanwise.onebot.lib.v11.data.message.CqCodeMessageData
+import cn.chuanwise.onebot.lib.v11.data.message.IdData
 import cn.chuanwise.onebot.lib.v11.data.message.ImageData
 import cn.chuanwise.onebot.lib.v11.data.message.RecordData
 import cn.chuanwise.onebot.lib.v11.data.message.SingleMessageData
@@ -86,7 +86,7 @@ class OneBot11LibTest {
         type = TEXT,
         TextData("Hello World!")
     )
-    private val textMessageInCQFormat = CQCodeMessageData("CQ Hello World!")
+    private val textMessageInCQFormat = CqCodeMessageData("CQ Hello World!")
     private val textMessageWithAtFriend = ArrayMessageData(
         data = listOf(
             SingleMessageData(
@@ -113,7 +113,7 @@ class OneBot11LibTest {
     )
     private val shakingData = SingleMessageData(
         type = FACE,
-        data = IDTag("41")
+        data = IdData("41")
     )
     private val recordData = SingleMessageData(
         type = RECORD,
@@ -140,7 +140,7 @@ class OneBot11LibTest {
 
         listOf(singleTextMessageData, textMessageInCQFormat, catImageData).forEach {
             appConnection.sendPrivateMessage(
-                userID = configurations.friendUserID,
+                userId = configurations.friendUserID,
                 message = it,
             )
         }
@@ -150,7 +150,7 @@ class OneBot11LibTest {
     fun testSendGroupMessage(): Unit = runBlocking {
         listOf(shakingData, recordData).forEach {
             appConnection.sendGroupMessage(
-                groupID = configurations.botIsAdminGroupID,
+                groupId = configurations.botIsAdminGroupID,
                 message = it,
             )
         }
@@ -160,8 +160,8 @@ class OneBot11LibTest {
     fun testSendAndRecallMessage(): Unit = runBlocking {
         val groupMessageID = appConnection.sendMessage(
             messageType = GROUP,
-            groupID = configurations.botIsAdminGroupID,
-            userID = null,
+            groupId = configurations.botIsAdminGroupID,
+            userId = null,
             message = textMessageWithAtFriend,
         )
         delay(5000)
@@ -172,8 +172,8 @@ class OneBot11LibTest {
         }
         val privateMessageID = appConnection.sendMessage(
             messageType = PRIVATE,
-            groupID = null,
-            userID = configurations.friendUserID,
+            groupId = null,
+            userId = configurations.friendUserID,
             message = shakingData,
         )
         delay(5000)
@@ -197,7 +197,7 @@ class OneBot11LibTest {
     @Test
     fun testSendLike(): Unit = runBlocking {
         appConnection.sendLike(
-            userID = configurations.friendUserID,
+            userId = configurations.friendUserID,
             times = 10
         )
     }
@@ -205,8 +205,8 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupKick(): Unit = runBlocking {
         appConnection.setGroupKick(
-            groupID = configurations.botIsAdminAndOtherIsMember.groupID,
-            userID = configurations.botIsAdminAndOtherIsMember.userID,
+            groupId = configurations.botIsAdminAndOtherIsMember.groupId,
+            userId = configurations.botIsAdminAndOtherIsMember.userId,
             rejectAddRequest = false
         )
     }
@@ -214,8 +214,8 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupBan(): Unit = runBlocking {
         appConnection.setGroupBan(
-            groupID = configurations.botIsAdminAndOtherIsMember.groupID,
-            userID = configurations.botIsAdminAndOtherIsMember.userID,
+            groupId = configurations.botIsAdminAndOtherIsMember.groupId,
+            userId = configurations.botIsAdminAndOtherIsMember.userId,
             duration = 114L
         )
     }
@@ -223,12 +223,12 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupWholeBan(): Unit = runBlocking {
         appConnection.setGroupWholeBan(
-            groupID = configurations.botIsAdminAndOtherIsMember.userID,
+            groupId = configurations.botIsAdminAndOtherIsMember.userId,
             enable = true
         )
         delay(5000)
         appConnection.setGroupWholeBan(
-            groupID = configurations.botIsAdminAndOtherIsMember.groupID,
+            groupId = configurations.botIsAdminAndOtherIsMember.groupId,
             enable = true
         )
     }
@@ -236,16 +236,16 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupAdmin(): Unit = runBlocking {
         appConnection.setGroupAdmin(
-            groupID = configurations.botIsOwnerAndOtherIsMember.groupID,
-            userID = configurations.botIsOwnerAndOtherIsMember.userID,
+            groupId = configurations.botIsOwnerAndOtherIsMember.groupId,
+            userId = configurations.botIsOwnerAndOtherIsMember.userId,
             enable = true
         )
 
         delay(5000)
 
         appConnection.setGroupAdmin(
-            groupID = configurations.botIsOwnerAndOtherIsMember.groupID,
-            userID = configurations.botIsOwnerAndOtherIsMember.userID,
+            groupId = configurations.botIsOwnerAndOtherIsMember.groupId,
+            userId = configurations.botIsOwnerAndOtherIsMember.userId,
             enable = false
         )
     }
@@ -253,14 +253,14 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupAnonymous(): Unit = runBlocking {
         appConnection.setGroupAnonymous(
-            groupID = configurations.botIsOwnerAndOtherIsMember.groupID,
+            groupId = configurations.botIsOwnerAndOtherIsMember.groupId,
             enable = true
         )
 
         delay(5000)
 
         appConnection.setGroupAnonymous(
-            groupID = configurations.botIsOwnerAndOtherIsMember.groupID,
+            groupId = configurations.botIsOwnerAndOtherIsMember.groupId,
             enable = false
         )
     }
@@ -268,16 +268,16 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupCard(): Unit = runBlocking {
         appConnection.setGroupCard(
-            groupID = configurations.botIsAdminAndOtherIsMember.groupID,
-            userID = configurations.botIsAdminAndOtherIsMember.userID,
+            groupId = configurations.botIsAdminAndOtherIsMember.groupId,
+            userId = configurations.botIsAdminAndOtherIsMember.userId,
             card = "Test Group Card"
         )
 
         delay(5000)
 
         appConnection.setGroupCard(
-            groupID = configurations.botIsAdminAndOtherIsMember.groupID,
-            userID = configurations.botIsAdminAndOtherIsMember.userID,
+            groupId = configurations.botIsAdminAndOtherIsMember.groupId,
+            userId = configurations.botIsAdminAndOtherIsMember.userId,
             card = ""
         )
 
@@ -301,7 +301,7 @@ class OneBot11LibTest {
         appConnection.incomingChannel.registerListenerWithoutQuickOperation(GROUP_MESSAGE_EVENT) {
             val anonymous = it.anonymous ?: return@registerListenerWithoutQuickOperation
             appConnection.setGroupAnonymousBan(
-                groupID = it.groupID,
+                groupId = it.groupId,
                 sender = anonymous,
                 duration = 114L
             )
@@ -313,7 +313,7 @@ class OneBot11LibTest {
         appConnection.incomingChannel.registerListenerWithoutQuickOperation(GROUP_MESSAGE_EVENT) {
             val anonymous = it.anonymous ?: return@registerListenerWithoutQuickOperation
             appConnection.setGroupAnonymousBan(
-                groupID = it.groupID,
+                groupId = it.groupId,
                 flag = anonymous.flag,
                 duration = 114L
             )
@@ -323,19 +323,19 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupName(): Unit = runBlocking {
         val group = appConnection.getGroupInfo(
-            groupID = configurations.botIsOwnerGroupID,
+            groupId = configurations.botIsOwnerGroupID,
             noCache = true
         )
 
         appConnection.setGroupName(
-            groupID = group.groupID,
+            groupId = group.groupId,
             groupName = "Test Group Name"
         )
 
         delay(5000)
 
         appConnection.setGroupName(
-            groupID = group.groupID,
+            groupId = group.groupId,
             groupName = group.groupName
         )
 
@@ -344,7 +344,7 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupLeave(): Unit = runBlocking {
         appConnection.setGroupLeave(
-            groupID = configurations.botIsOwnerGroupID,
+            groupId = configurations.botIsOwnerGroupID,
             isDismiss = true
         )
     }
@@ -352,8 +352,8 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupSpecialTitle(): Unit = runBlocking {
         appConnection.setGroupSpecialTitle(
-            groupID = configurations.botIsOwnerGroupID,
-            userID = configurations.friendUserID,
+            groupId = configurations.botIsOwnerGroupID,
+            userId = configurations.friendUserID,
             specialTitle = "TestTitle",
             duration = 3600L
         )
@@ -394,7 +394,7 @@ class OneBot11LibTest {
     @Test
     fun testGetStrangerInfo(): Unit = runBlocking {
         appConnection.getStrangerInfo(
-            userID = 10000L,
+            userId = 10000L,
             noCache = true
         )
     }
@@ -402,14 +402,14 @@ class OneBot11LibTest {
     @Test
     fun testGetGroupMemberList(): Unit = runBlocking {
         appConnection.getGroupMemberList(
-            groupID = configurations.botIsMemberGroupID
+            groupId = configurations.botIsMemberGroupID
         )
     }
 
     @Test
     fun testGetGroupHonorInfo(): Unit = runBlocking {
         appConnection.getGroupHonorInfo(
-            groupID = configurations.botIsMemberGroupID,
+            groupId = configurations.botIsMemberGroupID,
             type = "all"
         )
     }
@@ -460,8 +460,8 @@ class OneBot11LibTest {
                 ),
                 type = IMAGE
             ),
-            userID = null,
-            groupID = configurations.botIsAdminGroupID
+            userId = null,
+            groupId = configurations.botIsAdminGroupID
         )
         val image = when (val data = appConnection.getMessage(messageID).message) {
             is ArrayMessageData -> data.data.firstOrNull()?.data as ImageData
@@ -508,7 +508,7 @@ class OneBot11LibTest {
     @Test
     fun testSendFlashImage(): Unit = runBlocking {
         appConnection.sendGroupMessage(
-            groupID = configurations.botIsAdminGroupID,
+            groupId = configurations.botIsAdminGroupID,
             message = SingleMessageData(
                 type = IMAGE,
                 data = ImageData(

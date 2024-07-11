@@ -74,19 +74,19 @@ sealed class MessageData
 
 @JsonSerialize(using = CQCodeMessageDataSerializer::class)
 @JsonDeserialize(using = CQCodeMessageDataDeserializer::class)
-data class CQCodeMessageData(
+data class CqCodeMessageData(
     val code: String,
     val autoEscape: Boolean = false
 ) : MessageData()
 
-object CQCodeMessageDataDeserializer : StdDeserializer<CQCodeMessageData>(CQCodeMessageData::class.java) {
+object CQCodeMessageDataDeserializer : StdDeserializer<CqCodeMessageData>(CqCodeMessageData::class.java) {
     private fun readResolve(): Any = CQCodeMessageDataDeserializer
-    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): CQCodeMessageData {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): CqCodeMessageData {
         val node = p.codec.readTree<JsonNode>(p)
         return if (node is TextNode) {
-            CQCodeMessageData(p.readValueAs(String::class.java))
+            CqCodeMessageData(p.readValueAs(String::class.java))
         } else if (node is ObjectNode) {
-            CQCodeMessageData(
+            CqCodeMessageData(
                 code = node.getNotNull(DATA).asText(),
                 autoEscape = node.getNotNull(AUTO_ESCAPE).asBoolean()
             )
@@ -96,9 +96,9 @@ object CQCodeMessageDataDeserializer : StdDeserializer<CQCodeMessageData>(CQCode
     }
 }
 
-object CQCodeMessageDataSerializer : StdSerializer<CQCodeMessageData>(CQCodeMessageData::class.java) {
+object CQCodeMessageDataSerializer : StdSerializer<CqCodeMessageData>(CqCodeMessageData::class.java) {
     private fun readResolve(): Any = CQCodeMessageDataSerializer
-    override fun serialize(value: CQCodeMessageData, gen: JsonGenerator, provider: SerializerProvider) {
+    override fun serialize(value: CqCodeMessageData, gen: JsonGenerator, provider: SerializerProvider) {
         gen.writeString(value.code)
     }
 }
@@ -268,13 +268,13 @@ data class CustomMusicRecommendationData(
 ) : SegmentData()
 
 
-data class IDTag(
+data class IdData(
     val id: String
 ) : SegmentData()
 
 
 data class SingleForwardNodeData(
-    val userID: String,
+    val userId: String,
     val nickname: String,
     val content: MessageData
 ) : SegmentData()
@@ -323,9 +323,9 @@ object MessageDataDeserializer : StdDeserializer<MessageData>(MessageData::class
                             data.deserializeTo<RecommendationData>(ctxt)
                         }
 
-                        REPLY, FORWARD, FACE -> data.deserializeTo<IDTag>(ctxt)
+                        REPLY, FORWARD, FACE -> data.deserializeTo<IdData>(ctxt)
                         NODE -> if (data.has(ID)) {
-                            data.deserializeTo<IDTag>(ctxt)
+                            data.deserializeTo<IdData>(ctxt)
                         } else {
                             data.deserializeTo<SingleForwardNodeData>(ctxt)
                         }

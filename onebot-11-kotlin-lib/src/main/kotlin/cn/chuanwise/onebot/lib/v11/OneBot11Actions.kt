@@ -43,14 +43,14 @@ import cn.chuanwise.onebot.lib.v11.data.action.GetLoginInfoData
 import cn.chuanwise.onebot.lib.v11.data.action.GetMessageData
 import cn.chuanwise.onebot.lib.v11.data.action.GetRecordData
 import cn.chuanwise.onebot.lib.v11.data.action.GetStrangerInfoData
-import cn.chuanwise.onebot.lib.v11.data.action.GroupIDData
-import cn.chuanwise.onebot.lib.v11.data.action.GroupIDEnableData
-import cn.chuanwise.onebot.lib.v11.data.action.GroupIDUserIDEnableData
+import cn.chuanwise.onebot.lib.v11.data.action.GroupIdData
+import cn.chuanwise.onebot.lib.v11.data.action.GroupIdEnableData
+import cn.chuanwise.onebot.lib.v11.data.action.GroupIdUserIdEnableData
 import cn.chuanwise.onebot.lib.v11.data.action.GroupMemberData
 import cn.chuanwise.onebot.lib.v11.data.action.HandleQuickOperationData
-import cn.chuanwise.onebot.lib.v11.data.action.IDData
+import cn.chuanwise.onebot.lib.v11.data.action.IdData
 import cn.chuanwise.onebot.lib.v11.data.action.MessageDataWrapper
-import cn.chuanwise.onebot.lib.v11.data.action.MessageIDData
+import cn.chuanwise.onebot.lib.v11.data.action.MessageIdData
 import cn.chuanwise.onebot.lib.v11.data.action.SendGroupMessageData
 import cn.chuanwise.onebot.lib.v11.data.action.SendLikeData
 import cn.chuanwise.onebot.lib.v11.data.action.SendMessageData
@@ -68,22 +68,22 @@ import cn.chuanwise.onebot.lib.v11.data.action.YesOrNoData
 import cn.chuanwise.onebot.lib.v11.data.event.PrivateSenderData
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_private_msg-%E5%8F%91%E9%80%81%E7%A7%81%E8%81%8A%E6%B6%88%E6%81%AF
-val SEND_PRIVATE_MESSAGE = Action<SendPrivateMessageData, MessageIDData>("send_private_msg")
+val SEND_PRIVATE_MESSAGE = Action<SendPrivateMessageData, MessageIdData>("send_private_msg")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_group_msg-%E5%8F%91%E9%80%81%E7%BE%A4%E6%B6%88%E6%81%AF
-val SEND_GROUP_MESSAGE = Action<SendGroupMessageData, MessageIDData>("send_group_msg")
+val SEND_GROUP_MESSAGE = Action<SendGroupMessageData, MessageIdData>("send_group_msg")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_msg-%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF
-val SEND_MESSAGE = Action<SendMessageData, MessageIDData>("send_msg")
+val SEND_MESSAGE = Action<SendMessageData, MessageIdData>("send_msg")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#delete_msg-%E6%92%A4%E5%9B%9E%E6%B6%88%E6%81%AF
-val DELETE_MESSAGE = Action<MessageIDData, Unit>("delete_msg")
+val DELETE_MESSAGE = Action<MessageIdData, Unit>("delete_msg")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_msg-%E8%8E%B7%E5%8F%96%E6%B6%88%E6%81%AF
-val GET_MESSAGE = Action<MessageIDData, GetMessageData>("get_msg")
+val GET_MESSAGE = Action<MessageIdData, GetMessageData>("get_msg")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_forward_msg-%E8%8E%B7%E5%8F%96%E5%90%88%E5%B9%B6%E8%BD%AC%E5%8F%91%E6%B6%88%E6%81%AF
-val GET_FORWARD_MESSAGE = Action<IDData, MessageDataWrapper>("get_forward_msg")
+val GET_FORWARD_MESSAGE = Action<IdData, MessageDataWrapper>("get_forward_msg")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_like-%E5%8F%91%E9%80%81%E5%A5%BD%E5%8F%8B%E8%B5%9E
 val SEND_LIKE = Action<SendLikeData, Unit>("send_like")
@@ -98,13 +98,13 @@ val SET_GROUP_BAN = Action<SetGroupBanData, Unit>("set_group_ban")
 val SET_GROUP_ANONYMOUS_BAN = Action<SetGroupAnonymousBanData, Unit>("set_group_anonymous_ban")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#set_group_whole_ban-%E7%BE%A4%E7%BB%84%E5%85%A8%E5%91%98%E7%A6%81%E8%A8%80
-val SET_GROUP_WHOLE_BAN = Action<GroupIDEnableData, Unit>("set_group_whole_ban")
+val SET_GROUP_WHOLE_BAN = Action<GroupIdEnableData, Unit>("set_group_whole_ban")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#set_group_admin-%E7%BE%A4%E7%BB%84%E8%AE%BE%E7%BD%AE%E7%AE%A1%E7%90%86%E5%91%98
-val SET_GROUP_ADMIN = Action<GroupIDUserIDEnableData, Unit>("set_group_admin")
+val SET_GROUP_ADMIN = Action<GroupIdUserIdEnableData, Unit>("set_group_admin")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#set_group_anonymous-%E7%BE%A4%E7%BB%84%E5%8C%BF%E5%90%8D
-val SET_GROUP_ANONYMOUS = Action<GroupIDEnableData, Unit>("set_group_anonymous")
+val SET_GROUP_ANONYMOUS = Action<GroupIdEnableData, Unit>("set_group_anonymous")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#set_group_card-%E8%AE%BE%E7%BD%AE%E7%BE%A4%E5%90%8D%E7%89%87%E7%BE%A4%E5%A4%87%E6%B3%A8
 val SET_GROUP_CARD = Action<SetGroupCardData, Unit>("set_group_card")
@@ -143,7 +143,7 @@ val GET_GROUP_LIST = Action<Unit, List<GetGroupInfoResponseData>>("get_group_lis
 val GET_GROUP_MEMBER_INFO = Action<GetGroupMemberInfoData, GroupMemberData>("get_group_member_info")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_member_list-%E8%8E%B7%E5%8F%96%E7%BE%A4%E6%88%90%E5%91%98%E5%88%97%E8%A1%A8
-val GET_GROUP_MEMBER_LIST = Action<GroupIDData, List<GroupMemberData>>("get_group_member_list")
+val GET_GROUP_MEMBER_LIST = Action<GroupIdData, List<GroupMemberData>>("get_group_member_list")
 
 // https://github.com/botuniverse/onebot-11/blob/master/api/public.md#get_group_honor_info-%E8%8E%B7%E5%8F%96%E7%BE%A4%E8%8D%A3%E8%AA%89%E4%BF%A1%E6%81%AF
 val GET_GROUP_HONOR_INFO =

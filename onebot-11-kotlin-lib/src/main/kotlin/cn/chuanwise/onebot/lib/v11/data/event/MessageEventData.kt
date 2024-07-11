@@ -39,7 +39,7 @@ interface MessageEventData : EventData {
     val messageType: String
     val subType: String
     val messageID: Int
-    val userID: Long
+    val userId: Long
     val message: MessageData
     val rawMessage: String
     val font: Int
@@ -49,7 +49,7 @@ interface MessageEventData : EventData {
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 interface SenderData {
-    val userID: Long
+    val userId: Long
     val nickname: String
     val sex: String?
     val age: Int?
@@ -57,7 +57,7 @@ interface SenderData {
 
 
 data class PrivateSenderData(
-    override val userID: Long,
+    override val userId: Long,
     override val nickname: String,
     override val sex: String?,
     override val age: Int?,
@@ -65,7 +65,7 @@ data class PrivateSenderData(
 
 
 data class GroupSenderData(
-    override val userID: Long,
+    override val userId: Long,
     override val nickname: String,
     override val sex: String?,
     override val age: Int?,
@@ -87,7 +87,7 @@ data class PrivateMessageEventData(
     override val subType: String,
 
     override val messageID: Int,
-    override val userID: Long,
+    override val userId: Long,
     override val message: MessageData,
     override val rawMessage: String,
     override val font: Int,
@@ -128,8 +128,8 @@ data class GroupMessageEventData(
     override val subType: String,
     override val messageID: Int,
 
-    val groupID: Long,
-    override val userID: Long,
+    val groupId: Long,
+    override val userId: Long,
     override val message: MessageData,
     override val rawMessage: String,
     override val font: Int,

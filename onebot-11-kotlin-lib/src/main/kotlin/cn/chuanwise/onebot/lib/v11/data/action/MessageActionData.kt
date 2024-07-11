@@ -23,25 +23,25 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class MessageIDData(
+data class MessageIdData(
     val messageID: Int
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class IDData(
+data class IdData(
     val id: String
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SendGroupMessageData(
-    val groupID: Long,
+    val groupId: Long,
     val message: MessageData,
     val autoEscape: Boolean = false,
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SendPrivateMessageData(
-    val userID: Long,
+    val userId: Long,
     val message: MessageData,
     val autoEscape: Boolean = false,
 )
@@ -52,10 +52,10 @@ data class SendMessageData(
     val messageType: String?,
 
     // if not null, send to this user
-    val userID: Long?,
+    val userId: Long?,
 
     // if not null, send to this group
-    val groupID: Long?,
+    val groupId: Long?,
     val message: MessageData,
     val autoEscape: Boolean = false,
 )
@@ -78,21 +78,21 @@ data class MessageDataWrapper(
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SendLikeData(
-    val userID: Long,
+    val userId: Long,
     val times: Int,
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SetGroupKickData(
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val rejectAddRequest: Boolean = false,
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SetGroupBanData(
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
 
     // seconds, 0 to release
     val duration: Long = 30 * 60
@@ -100,7 +100,7 @@ data class SetGroupBanData(
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SetGroupAnonymousBanData(
-    val groupID: Long,
+    val groupId: Long,
     val anonymous: AnonymousSenderData?,
     val flag: String?,
 
@@ -109,41 +109,41 @@ data class SetGroupAnonymousBanData(
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class GroupIDEnableData(
-    val groupID: Long,
+data class GroupIdEnableData(
+    val groupId: Long,
     val enable: Boolean = true
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class GroupIDUserIDEnableData(
-    val groupID: Long,
-    val userID: Long,
+data class GroupIdUserIdEnableData(
+    val groupId: Long,
+    val userId: Long,
     val enable: Boolean = true
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SetGroupCardData(
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val card: String? = null
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SetGroupNameData(
-    val groupID: Long,
+    val groupId: Long,
     val groupName: String
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SetGroupLeaveData(
-    val groupID: Long,
+    val groupId: Long,
     val isDismiss: Boolean = false
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class SetGroupSpecialTitleData(
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val specialTitle: String? = null,
 
     // seconds, 0 to release
@@ -166,32 +166,32 @@ data class SetGroupAddRequestData(
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GetLoginInfoData(
-    val userID: Long,
+    val userId: Long,
     val nickname: String,
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GetStrangerInfoData(
-    val userID: Long,
+    val userId: Long,
     val noCache: Boolean = false
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class FriendListElement(
-    val userID: Long,
+    val userId: Long,
     val nickname: String,
     val remark: String? = null
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GetGroupInfoData(
-    val groupID: Long,
+    val groupId: Long,
     val noCache: Boolean = false
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GetGroupInfoResponseData(
-    val groupID: Long,
+    val groupId: Long,
     val groupName: String,
     val memberCount: Int,
     val maxMemberCount: Int,
@@ -199,15 +199,15 @@ data class GetGroupInfoResponseData(
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GetGroupMemberInfoData(
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val noCache: Boolean = false
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GroupMemberData(
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val nickname: String,
     val card: String?,
     val sex: String?,
@@ -224,13 +224,13 @@ data class GroupMemberData(
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class GroupIDData(
-    val groupID: Long
+data class GroupIdData(
+    val groupId: Long
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GetGroupHonorInfoData(
-    val groupID: Long,
+    val groupId: Long,
 
     // "talkative", "performer", "legend", "strong_newbie", "emotion" or "all"
     val type: String,
@@ -238,7 +238,7 @@ data class GetGroupHonorInfoData(
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GetGroupHonorInfoResponseData(
-    val groupID: Long,
+    val groupId: Long,
     val currentTalkative: GroupCurrentTalkativeData?,
     val talkativeList: List<GroupHonorOwner>,
     val performerList: List<GroupHonorOwner>,
@@ -249,7 +249,7 @@ data class GetGroupHonorInfoResponseData(
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GroupCurrentTalkativeData(
-    val userID: Long,
+    val userId: Long,
     val nickname: String,
     val avatar: String,
     val dayCount: Int,
@@ -257,7 +257,7 @@ data class GroupCurrentTalkativeData(
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class GroupHonorOwner(
-    val userID: Long,
+    val userId: Long,
     val honor: String,
     val avatar: Int,
     val description: String,

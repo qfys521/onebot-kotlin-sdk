@@ -10,41 +10,41 @@
     "accessToken": ${accessToken}
   },
   "testSendPrivateMessage": false,
-  "friendUserID": ${userID},
-  "strangerUserID": ${userID},
-  "botIsMemberGroupID": ${groupID},
-  "botIsAdminGroupID": ${groupID},
-  "botIsOwnerGroupID": ${groupID},
+  "friendUserID": ${userId},
+  "strangerUserID": ${userId},
+  "botIsMemberGroupID": ${groupId},
+  "botIsAdminGroupID": ${groupId},
+  "botIsOwnerGroupID": ${groupId},
   "botIsMemberAndOtherIsMember": {
-    "groupID": ${groupID},
-    "userID": ${userID}
+    "groupId": ${groupId},
+    "userId": ${userId}
   },
   "botIsMemberAndOtherIsAdmin": {
-    "groupID": ${groupID},
-    "userID": ${userID}
+    "groupId": ${groupId},
+    "userId": ${userId}
   },
   "botIsMemberAndOtherIsOwner": {
-    "groupID": ${groupID},
-    "userID": ${userID}
+    "groupId": ${groupId},
+    "userId": ${userId}
   },
   "botIsAdminAndOtherIsMember": {
-    "groupID": ${groupID},
-    "userID": ${userID}
+    "groupId": ${groupId},
+    "userId": ${userId}
   },
   "botIsAdminAndOtherIsAdmin": {
-    "groupID": ${groupID},
-    "userID": ${userID}
+    "groupId": ${groupId},
+    "userId": ${userId}
   },
   "botIsAdminAndOtherIsOwner": {
-    "groupID": ${groupID},
-    "userID": ${userID}
+    "groupId": ${groupId},
+    "userId": ${userId}
   },
   "botIsOwnerAndOtherIsMember": {
-    "groupID": ${groupID},
-    "userID": ${userID}
+    "groupId": ${groupId},
+    "userId": ${userId}
   },
   "botIsOwnerAndOtherIsAdmin": {
-    "groupID": ${groupID},
-    "userID": ${userID}
+    "groupId": ${groupId},
+    "userId": ${userId}
   }
 }

@@ -47,7 +47,7 @@ data class FriendAddRequestEventData(
     // "friend"
     override val requestType: String,
 
-    val userID: Long,
+    val userId: Long,
     val comment: String,
     val flag: String,
 ) : RequestEventData
@@ -70,8 +70,8 @@ data class GroupAddRequestEventData(
 
     // "add" or "invite"
     val subType: String,
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val comment: String,
     val flag: String,
 ) : RequestEventData

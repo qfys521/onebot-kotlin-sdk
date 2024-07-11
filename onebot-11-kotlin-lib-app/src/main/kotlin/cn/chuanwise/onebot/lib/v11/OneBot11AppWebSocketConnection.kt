@@ -110,7 +110,7 @@ class OneBot11AppWebSocketConnection private constructor(
             val interval = configuration.heartbeatInterval ?: continue
 
             val watchDog = WatchDog(interval)
-            val feederUUID = incomingChannel.registerListener(HEARTBEAT_META_EVENT) {
+            val feederUuid = incomingChannel.registerListener(HEARTBEAT_META_EVENT) {
                 watchDog.feed()
             }
             val hungryDetector = launch {
@@ -127,7 +127,7 @@ class OneBot11AppWebSocketConnection private constructor(
                 await()
             }
 
-            incomingChannel.unregisterListener(feederUUID)
+            incomingChannel.unregisterListener(feederUuid)
             hungryDetector.cancel("Disconnected.")
         }
     }

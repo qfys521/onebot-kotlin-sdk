@@ -70,8 +70,8 @@ data class GroupFileUploadNoticeEventData(
     // "group_upload"
     override val noticeType: String,
 
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val file: FileData
 ) : NoticeEventData
 
@@ -86,8 +86,8 @@ data class GroupAdminChangedNoticeEventData(
     // "group_admin"
     override val noticeType: String,
 
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
 
     // "set" or "unset"
     val subType: String,
@@ -104,8 +104,8 @@ data class GroupMemberChangedNoticeEventData(
     // "group_decrease" or "group_increase"
     override val noticeType: String,
 
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val operatorID: Long,
 
     // "leave", "kick" or "kick_me",
@@ -126,8 +126,8 @@ data class GroupMuteNoticeEventData(
 
     // "ban" or "lift_ban"
     val subType: String,
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val operatorID: Long,
 
     // seconds
@@ -145,7 +145,7 @@ data class FriendAddNoticeEventData(
     // "friend_add"
     override val noticeType: String,
 
-    val userID: Long,
+    val userId: Long,
 ) : NoticeEventData
 
 
@@ -159,8 +159,8 @@ data class GroupMessageRecallNoticeEventData(
     // "group_recall"
     override val noticeType: String,
 
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val operatorID: Long,
     val messageID: Int,
 ) : NoticeEventData
@@ -176,7 +176,7 @@ data class FriendMessageRecallNoticeEventData(
     // "friend_recall"
     override val noticeType: String,
 
-    val userID: Long,
+    val userId: Long,
     val messageID: Int,
 ) : NoticeEventData
 
@@ -193,8 +193,8 @@ data class GroupPokeNoticeEventData(
 
     // "poke"
     val subType: String,
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
     val targetID: Long,
 ) : NoticeEventData
 
@@ -209,10 +209,10 @@ data class GroupRedPacketLuckyKingNoticeEventData(
     // "lucky_king"
     override val noticeType: String,
 
-    val groupID: Long,
+    val groupId: Long,
 
     // red packet sender
-    val userID: Long,
+    val userId: Long,
 
     // lucky king
     val targetID: Long,
@@ -230,8 +230,8 @@ data class GroupMemberHonorChangedNoticeEventData(
     override val noticeType: String,
 
     val subType: String,
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
 
     // "talkative", "performer" or "emotion"
     val honorType: String,

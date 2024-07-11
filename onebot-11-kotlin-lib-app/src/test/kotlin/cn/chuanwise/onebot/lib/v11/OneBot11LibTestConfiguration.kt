@@ -17,8 +17,8 @@
 package cn.chuanwise.onebot.lib.v11
 
 data class GroupUser(
-    val groupID: Long,
-    val userID: Long,
+    val groupId: Long,
+    val userId: Long,
 )
 
 data class OneBot11LibTestConfiguration(
