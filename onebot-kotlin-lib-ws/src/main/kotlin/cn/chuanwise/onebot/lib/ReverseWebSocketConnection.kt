@@ -130,7 +130,6 @@ abstract class ReverseWebSocketConnection(
                         else -> throw IllegalStateException("Unexpected state: $stateWithoutLock")
                     }
                 }
-
                 AuthReceipt.FORMAT_ERROR, AuthReceipt.REQUIRED, AuthReceipt.TOKEN_ERROR -> {
                     val message = when (authReceipt) {
                         AuthReceipt.FORMAT_ERROR -> "Access token format error."
@@ -148,7 +147,7 @@ abstract class ReverseWebSocketConnection(
             webSocket(configuration.path) {
                 lock.read {
                     when (stateWithoutLock) {
-                        State.WAITING -> lock.write {
+                        State.WAITING -> lock.upgrade {
                             sessionWithoutLock = this
                             stateWithoutLock = State.CONNECTED
                             condition.signalAll()
@@ -182,13 +181,13 @@ abstract class ReverseWebSocketConnection(
                     lock.read {
                         when (stateWithoutLock) {
                             // if state is CONNECTING, it's because of error.
-                            State.CONNECTED -> lock.write {
+                            State.CONNECTED -> lock.upgrade {
                                 sessionWithoutLock = null
                                 stateWithoutLock = State.WAITING
                                 condition.signalAll()
                             }
 
-                            State.CLOSED -> lock.write {
+                            State.CLOSED -> lock.upgrade {
                                 sessionWithoutLock = null
                                 stateWithoutLock = State.CLOSED
                                 condition.signalAll()
@@ -229,13 +228,11 @@ abstract class ReverseWebSocketConnection(
                 }
                 State.WAITING -> Unit
             }
-            lock.write {
+            lock.upgrade {
                 stateWithoutLock = State.CLOSED
                 sessionWithoutLock = null
                 server.stop()
-                runBlocking {
-                    job.cancelAndJoin()
-                }
+                job.cancel("Connection closed.")
             }
         }
     }

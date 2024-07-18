@@ -79,7 +79,7 @@ abstract class HTTPReceivingLoop(
 //            // change state
 //            lock.read {
 //                when (stateWithoutLock) {
-//                    State.INITIALIZED, State.WAITING -> lock.write {
+//                    State.INITIALIZED, State.WAITING -> lock.upgrade {
 //                        stateWithoutLock = State.CONNECTING
 //                    }
 //
@@ -100,7 +100,7 @@ abstract class HTTPReceivingLoop(
 //            ) {
 //                lock.read {
 //                    when (stateWithoutLock) {
-//                        State.CONNECTING -> lock.write {
+//                        State.CONNECTING -> lock.upgrade {
 //                            sessionWithoutLock = this
 //                            stateWithoutLock = State.CONNECTED
 //                            condition.signalAll()
@@ -122,7 +122,7 @@ abstract class HTTPReceivingLoop(
 //                } finally {
 //                    lock.read {
 //                        when (stateWithoutLock) {
-//                            State.CONNECTED -> lock.write {
+//                            State.CONNECTED -> lock.upgrade {
 //                                sessionWithoutLock = null
 //                                stateWithoutLock = if (attempts.hasNext(attempt)) State.WAITING else State.DISCONNECTED
 //                                condition.signalAll()

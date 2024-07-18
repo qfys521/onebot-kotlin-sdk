@@ -27,7 +27,6 @@ import io.ktor.websocket.WebSocketSession
 import io.ktor.websocket.close
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -90,7 +89,7 @@ abstract class WebSocketConnection(
             // change state
             lock.read {
                 when (stateWithoutLock) {
-                    State.INITIALIZED, State.WAITING -> lock.write {
+                    State.INITIALIZED, State.WAITING -> lock.upgrade {
                         stateWithoutLock = State.CONNECTING
                     }
 
@@ -111,7 +110,7 @@ abstract class WebSocketConnection(
             ) {
                 lock.read {
                     when (stateWithoutLock) {
-                        State.CONNECTING -> lock.write {
+                        State.CONNECTING -> lock.upgrade {
                             sessionWithoutLock = this
                             stateWithoutLock = State.CONNECTED
                             condition.signalAll()
@@ -141,7 +140,7 @@ abstract class WebSocketConnection(
                 } finally {
                     lock.read {
                         when (stateWithoutLock) {
-                            State.CONNECTED -> lock.write {
+                            State.CONNECTED -> lock.upgrade {
                                 sessionWithoutLock = null
                                 stateWithoutLock = if (attempts.hasNext(attempt)) State.WAITING else State.DISCONNECTED
                                 condition.signalAll()
@@ -190,13 +189,11 @@ abstract class WebSocketConnection(
                 }
                 State.INITIALIZED, State.CONNECTING, State.WAITING -> Unit
             }
-            lock.write {
+            lock.upgrade {
                 stateWithoutLock = State.DISCONNECTED
                 sessionWithoutLock = null
                 client.close()
-                runBlocking {
-                    job.cancelAndJoin()
-                }
+                job.cancel("Connection closed.")
             }
         }
     }

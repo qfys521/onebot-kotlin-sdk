@@ -122,7 +122,7 @@ class OneBot11AppWebSocketConnection @JvmOverloads constructor(
             val hungryDetector = launch(job) {
                 while (state == State.CONNECTED) {
                     delay(interval)
-                    if (watchDog.isHungry) {
+                    if (state == State.CONNECTED && watchDog.isHungry) {
                         disconnect(CloseReason(CloseReason.Codes.NORMAL, "Heartbeat timeout."))
                     }
                 }

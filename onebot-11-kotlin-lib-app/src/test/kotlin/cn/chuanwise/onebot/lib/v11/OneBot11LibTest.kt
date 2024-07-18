@@ -23,7 +23,6 @@ import cn.chuanwise.onebot.lib.FORWARD
 import cn.chuanwise.onebot.lib.GROUP
 import cn.chuanwise.onebot.lib.IMAGE
 import cn.chuanwise.onebot.lib.PRIVATE
-import cn.chuanwise.onebot.lib.RECORD
 import cn.chuanwise.onebot.lib.TEXT
 import cn.chuanwise.onebot.lib.awaitUtilConnected
 import cn.chuanwise.onebot.lib.v11.data.event.FriendAddRequestQuickOperationData
@@ -33,7 +32,6 @@ import cn.chuanwise.onebot.lib.v11.data.message.AtData
 import cn.chuanwise.onebot.lib.v11.data.message.CqCodeMessageData
 import cn.chuanwise.onebot.lib.v11.data.message.IdData
 import cn.chuanwise.onebot.lib.v11.data.message.ImageData
-import cn.chuanwise.onebot.lib.v11.data.message.RecordData
 import cn.chuanwise.onebot.lib.v11.data.message.SingleMessageData
 import cn.chuanwise.onebot.lib.v11.data.message.TextData
 import cn.chuanwise.onebot.lib.v11.utils.getObjectMapper
@@ -42,15 +40,17 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.net.URL
 
 class OneBot11LibTest {
     companion object {
-        private val coroutineScope = CoroutineScope(Dispatchers.IO)
         private val job = SupervisorJob()
+        private val coroutineScope = CoroutineScope(job + Dispatchers.IO)
 
         private val objectMapper = getObjectMapper()
         private val configurations = objectMapper.readValue<OneBot11LibTestConfiguration>(
@@ -87,11 +87,12 @@ class OneBot11LibTest {
             return resourceURL
         }
 
-//        @JvmStatic
-//        @AfterAll
-//        fun afterAll() {
-//            appConnection.close()
-//        }
+        @JvmStatic
+        @AfterAll
+        fun afterAll() {
+            appConnection.close()
+            coroutineScope.cancel("Test finished.")
+        }
     }
 
     private val singleTextMessageData = SingleMessageData(
@@ -127,17 +128,18 @@ class OneBot11LibTest {
         type = FACE,
         data = IdData("41")
     )
-    private val recordData = SingleMessageData(
-        type = RECORD,
-        RecordData(
-            file = getResourceURL("messages/big-bang-laughs.mp3").toString(),
-            magic = null,
-            url = null,
-            cache = 1,
-            proxy = 0,
-            timeout = null
-        )
-    )
+    // record data are invalid in some OneBot impl without ffmpeg
+//    private val recordData = SingleMessageData(
+//        type = RECORD,
+//        RecordData(
+//            file = getResourceURL("messages/big-bang-laughs.mp3").toString(),
+//            magic = null,
+//            url = null,
+//            cache = 1,
+//            proxy = 0,
+//            timeout = null
+//        )
+//    )
 
 //    @Test
 //    fun testEventReceiving(): Unit = runBlocking {
@@ -160,7 +162,7 @@ class OneBot11LibTest {
 
     @Test
     fun testSendGroupMessage(): Unit = runBlocking {
-        listOf(shakingData, recordData).forEach {
+        listOf(shakingData).forEach {
             appConnection.sendGroupMessage(
                 groupId = configurations.botIsAdminGroupId,
                 message = it,
