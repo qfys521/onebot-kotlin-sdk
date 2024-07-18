@@ -10,11 +10,11 @@
     "accessToken": ${accessToken}
   },
   "testSendPrivateMessage": false,
-  "friendUserID": ${userId},
-  "strangerUserID": ${userId},
-  "botIsMemberGroupID": ${groupId},
-  "botIsAdminGroupID": ${groupId},
-  "botIsOwnerGroupID": ${groupId},
+  "friendUserId": ${userId},
+  "strangerUserId": ${userId},
+  "botIsMemberGroupId": ${groupId},
+  "botIsAdminGroupId": ${groupId},
+  "botIsOwnerGroupId": ${groupId},
   "botIsMemberAndOtherIsMember": {
     "groupId": ${groupId},
     "userId": ${userId}

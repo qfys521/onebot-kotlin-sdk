@@ -16,7 +16,6 @@
 
 package cn.chuanwise.onebot.lib
 
-import cn.chuanwise.onebot.lib.ReverseWebSocketConnection.State
 import com.fasterxml.jackson.databind.JsonNode
 import io.github.oshai.kotlinlogging.KLogger
 import io.ktor.client.HttpClient
@@ -26,10 +25,9 @@ import io.ktor.client.request.header
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.WebSocketSession
 import io.ktor.websocket.close
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -53,13 +51,12 @@ interface WebSocketConnectionConfiguration {
 }
 
 abstract class WebSocketConnection(
+    configuration: WebSocketConnectionConfiguration,
+    private val job: Job,
+    override val coroutineContext: CoroutineContext,
     receivingLoop: WebSocketReceivingLoop,
     logger: KLogger,
-    configuration: WebSocketConnectionConfiguration
 ) : WebSocketLikeConnection {
-
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    override val coroutineContext: CoroutineContext = coroutineScope.coroutineContext
 
     private val lock = ReentrantReadWriteLock()
     private val condition = lock.writeLock().newCondition()
@@ -87,7 +84,7 @@ abstract class WebSocketConnection(
         install(WebSockets)
     }
 
-    private val connectJob = client.launch {
+    private val connectJob = client.launch(job) {
         val attempts = IncreasingInts(configuration.maxConnectAttempts)
         for (attempt in attempts) {
             // change state
@@ -191,14 +188,15 @@ abstract class WebSocketConnection(
                 State.CONNECTED -> runBlocking {
                     disconnect(CloseReason(CloseReason.Codes.NORMAL, "Connection closed."))
                 }
-
                 State.INITIALIZED, State.CONNECTING, State.WAITING -> Unit
             }
             lock.write {
                 stateWithoutLock = State.DISCONNECTED
                 sessionWithoutLock = null
                 client.close()
-                coroutineScope.cancel("Connection closed.")
+                runBlocking {
+                    job.cancelAndJoin()
+                }
             }
         }
     }

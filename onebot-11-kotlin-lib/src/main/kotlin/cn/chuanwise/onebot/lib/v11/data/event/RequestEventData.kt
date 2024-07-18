@@ -39,7 +39,7 @@ interface RequestEventData : EventData {
 
 data class FriendAddRequestEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "request"
     override val postType: String,
@@ -60,7 +60,7 @@ data class FriendAddRequestQuickOperationData(
 
 data class GroupAddRequestEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "request"
     override val postType: String,

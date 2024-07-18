@@ -40,6 +40,7 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingVersion")
 
     testImplementation("org.slf4j:slf4j-api:$slf4jVersion")
+//    testRuntimeOnly("org.slf4j:slf4j-core:$slf4jVersion")
     testImplementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     testImplementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
     testRuntimeOnly("org.apache.logging.log4j:log4j-core:$log4jVersion")

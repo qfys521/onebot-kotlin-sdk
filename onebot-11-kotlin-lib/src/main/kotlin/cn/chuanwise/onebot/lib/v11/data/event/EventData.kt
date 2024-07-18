@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
  */
 interface EventData : OneBot11ToAppPack {
     val time: Long
-    val selfID: Long
+    val selfId: Long
     val postType: String
 }
 

@@ -62,7 +62,7 @@ data class FileData(
 
 data class GroupFileUploadNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,
@@ -78,7 +78,7 @@ data class GroupFileUploadNoticeEventData(
 
 data class GroupAdminChangedNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,
@@ -96,7 +96,7 @@ data class GroupAdminChangedNoticeEventData(
 
 data class GroupMemberChangedNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,
@@ -106,7 +106,7 @@ data class GroupMemberChangedNoticeEventData(
 
     val groupId: Long,
     val userId: Long,
-    val operatorID: Long,
+    val operatorId: Long,
 
     // "leave", "kick" or "kick_me",
     // "invite" or "approve"
@@ -116,7 +116,7 @@ data class GroupMemberChangedNoticeEventData(
 
 data class GroupMuteNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,
@@ -128,7 +128,7 @@ data class GroupMuteNoticeEventData(
     val subType: String,
     val groupId: Long,
     val userId: Long,
-    val operatorID: Long,
+    val operatorId: Long,
 
     // seconds
     val duration: Long,
@@ -137,7 +137,7 @@ data class GroupMuteNoticeEventData(
 
 data class FriendAddNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,
@@ -151,7 +151,7 @@ data class FriendAddNoticeEventData(
 
 data class GroupMessageRecallNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,
@@ -161,14 +161,14 @@ data class GroupMessageRecallNoticeEventData(
 
     val groupId: Long,
     val userId: Long,
-    val operatorID: Long,
-    val messageID: Int,
+    val operatorId: Long,
+    val messageId: Int,
 ) : NoticeEventData
 
 
 data class FriendMessageRecallNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,
@@ -177,13 +177,13 @@ data class FriendMessageRecallNoticeEventData(
     override val noticeType: String,
 
     val userId: Long,
-    val messageID: Int,
+    val messageId: Int,
 ) : NoticeEventData
 
 
 data class GroupPokeNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,
@@ -195,13 +195,13 @@ data class GroupPokeNoticeEventData(
     val subType: String,
     val groupId: Long,
     val userId: Long,
-    val targetID: Long,
+    val targetId: Long,
 ) : NoticeEventData
 
 
 data class GroupRedPacketLuckyKingNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,
@@ -215,13 +215,13 @@ data class GroupRedPacketLuckyKingNoticeEventData(
     val userId: Long,
 
     // lucky king
-    val targetID: Long,
+    val targetId: Long,
 ) : NoticeEventData
 
 
 data class GroupMemberHonorChangedNoticeEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "notice"
     override val postType: String,

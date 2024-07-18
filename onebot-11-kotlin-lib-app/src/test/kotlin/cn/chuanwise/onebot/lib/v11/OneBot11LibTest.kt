@@ -39,6 +39,9 @@ import cn.chuanwise.onebot.lib.v11.data.message.TextData
 import cn.chuanwise.onebot.lib.v11.utils.getObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -46,6 +49,9 @@ import java.net.URL
 
 class OneBot11LibTest {
     companion object {
+        private val coroutineScope = CoroutineScope(Dispatchers.IO)
+        private val job = SupervisorJob()
+
         private val objectMapper = getObjectMapper()
         private val configurations = objectMapper.readValue<OneBot11LibTestConfiguration>(
             getResourceURL("configurations.json")
@@ -54,13 +60,19 @@ class OneBot11LibTest {
         private val logger = KotlinLogging.logger { }
 
         private val appWebSocketConnection: OneBot11AppWebSocketConnection by lazy {
-            OneBot11AppWebSocketConnection(configurations.appWebSocketConnection).awaitUtilConnected()
+            OneBot11AppWebSocketConnection(
+                configurations.appWebSocketConnection,
+                job, coroutineScope.coroutineContext
+            ).awaitUtilConnected()
         }
         private val appReverseWebSocketConnection: OneBot11AppReverseWebSocketConnection by lazy {
-            OneBot11AppReverseWebSocketConnection(configurations.appReverseWebSocketConnection).awaitUtilConnected()
+            OneBot11AppReverseWebSocketConnection(
+                configurations.appReverseWebSocketConnection,
+                job, coroutineScope.coroutineContext
+            ).awaitUtilConnected()
         }
 
-        private val appConnection = appReverseWebSocketConnection
+        private val appConnection = appWebSocketConnection
 
         @JvmStatic
         fun getResourceURL(path: String): URL {
@@ -95,7 +107,7 @@ class OneBot11LibTest {
             ),
             SingleMessageData(
                 type = AT,
-                AtData(configurations.friendUserID.toString()),
+                AtData(configurations.friendUserId.toString()),
             ),
         )
     )
@@ -140,7 +152,7 @@ class OneBot11LibTest {
 
         listOf(singleTextMessageData, textMessageInCQFormat, catImageData).forEach {
             appConnection.sendPrivateMessage(
-                userId = configurations.friendUserID,
+                userId = configurations.friendUserId,
                 message = it,
             )
         }
@@ -150,7 +162,7 @@ class OneBot11LibTest {
     fun testSendGroupMessage(): Unit = runBlocking {
         listOf(shakingData, recordData).forEach {
             appConnection.sendGroupMessage(
-                groupId = configurations.botIsAdminGroupID,
+                groupId = configurations.botIsAdminGroupId,
                 message = it,
             )
         }
@@ -158,31 +170,32 @@ class OneBot11LibTest {
 
     @Test
     fun testSendAndRecallMessage(): Unit = runBlocking {
-        val groupMessageID = appConnection.sendMessage(
+        val groupMessageId = appConnection.sendMessage(
             messageType = GROUP,
-            groupId = configurations.botIsAdminGroupID,
+            groupId = configurations.botIsAdminGroupId,
             userId = null,
             message = textMessageWithAtFriend,
         )
         delay(5000)
-        appConnection.deleteMessage(groupMessageID)
+        appConnection.deleteMessage(groupMessageId)
 
         if (!configurations.testSendPrivateMessage) {
             return@runBlocking
         }
-        val privateMessageID = appConnection.sendMessage(
+        val privateMessageId = appConnection.sendMessage(
             messageType = PRIVATE,
             groupId = null,
-            userId = configurations.friendUserID,
+            userId = configurations.friendUserId,
             message = shakingData,
         )
         delay(5000)
-        appConnection.deleteMessage(privateMessageID)
+        appConnection.deleteMessage(privateMessageId)
     }
 
     @Test
     fun testGetGroupInfo(): Unit = runBlocking {
         val loginInfo = appConnection.getLoginInfo()
+        println(loginInfo)
     }
 
 
@@ -190,14 +203,14 @@ class OneBot11LibTest {
     fun testGetForwardMessage(): Unit = runBlocking {
         appConnection.incomingChannel.registerListenerWithoutQuickOperation(MESSAGE_EVENT) {
             if (it.messageType != FORWARD) return@registerListenerWithoutQuickOperation
-            appConnection.getMessage(it.messageID)
+            println(appConnection.getMessage(it.messageId))
         }
     }
 
     @Test
     fun testSendLike(): Unit = runBlocking {
         appConnection.sendLike(
-            userId = configurations.friendUserID,
+            userId = configurations.friendUserId,
             times = 10
         )
     }
@@ -323,7 +336,7 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupName(): Unit = runBlocking {
         val group = appConnection.getGroupInfo(
-            groupId = configurations.botIsOwnerGroupID,
+            groupId = configurations.botIsOwnerGroupId,
             noCache = true
         )
 
@@ -344,7 +357,7 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupLeave(): Unit = runBlocking {
         appConnection.setGroupLeave(
-            groupId = configurations.botIsOwnerGroupID,
+            groupId = configurations.botIsOwnerGroupId,
             isDismiss = true
         )
     }
@@ -352,8 +365,8 @@ class OneBot11LibTest {
     @Test
     fun testSetGroupSpecialTitle(): Unit = runBlocking {
         appConnection.setGroupSpecialTitle(
-            groupId = configurations.botIsOwnerGroupID,
-            userId = configurations.friendUserID,
+            groupId = configurations.botIsOwnerGroupId,
+            userId = configurations.friendUserId,
             specialTitle = "TestTitle",
             duration = 3600L
         )
@@ -402,14 +415,14 @@ class OneBot11LibTest {
     @Test
     fun testGetGroupMemberList(): Unit = runBlocking {
         appConnection.getGroupMemberList(
-            groupId = configurations.botIsMemberGroupID
+            groupId = configurations.botIsMemberGroupId
         )
     }
 
     @Test
     fun testGetGroupHonorInfo(): Unit = runBlocking {
         appConnection.getGroupHonorInfo(
-            groupId = configurations.botIsMemberGroupID,
+            groupId = configurations.botIsMemberGroupId,
             type = "all"
         )
     }
@@ -446,7 +459,7 @@ class OneBot11LibTest {
 
     @Test
     fun testGetImage(): Unit = runBlocking {
-        val messageID = appConnection.sendMessage(
+        val messageId = appConnection.sendMessage(
             messageType = IMAGE,
             message = SingleMessageData(
                 data = ImageData(
@@ -461,9 +474,9 @@ class OneBot11LibTest {
                 type = IMAGE
             ),
             userId = null,
-            groupId = configurations.botIsAdminGroupID
+            groupId = configurations.botIsAdminGroupId
         )
-        val image = when (val data = appConnection.getMessage(messageID).message) {
+        val image = when (val data = appConnection.getMessage(messageId).message) {
             is ArrayMessageData -> data.data.firstOrNull()?.data as ImageData
             is SingleMessageData -> data.data as ImageData
             else -> throw IllegalStateException()
@@ -508,7 +521,7 @@ class OneBot11LibTest {
     @Test
     fun testSendFlashImage(): Unit = runBlocking {
         appConnection.sendGroupMessage(
-            groupId = configurations.botIsAdminGroupID,
+            groupId = configurations.botIsAdminGroupId,
             message = SingleMessageData(
                 type = IMAGE,
                 data = ImageData(

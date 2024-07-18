@@ -18,21 +18,31 @@ package cn.chuanwise.onebot.lib
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
+import kotlinx.coroutines.Job
+import kotlin.coroutines.CoroutineContext
 
 abstract class AppReverseWebSocketConnection private constructor(
+    configuration: ReverseWebSocketConnectionConfiguration,
+    job: Job,
+    coroutineContext: CoroutineContext,
     protected val receivingLoop: AppWebSocketReceivingLoop,
     logger: KLogger,
-    configuration: ReverseWebSocketConnectionConfiguration
-) : ReverseWebSocketConnection(receivingLoop, logger, configuration), AppConnection {
+) : ReverseWebSocketConnection(
+    configuration, job, coroutineContext, receivingLoop, logger
+), AppConnection {
 
     constructor(
+        configuration: ReverseWebSocketConnectionConfiguration,
+        job: Job,
+        coroutineContext: CoroutineContext,
         objectMapper: ObjectMapper,
         logger: KLogger,
-        configuration: ReverseWebSocketConnectionConfiguration,
     ) : this(
-        AppWebSocketReceivingLoop(objectMapper, logger),
-        logger,
         configuration,
+        job,
+        coroutineContext,
+        AppWebSocketReceivingLoop(job, objectMapper, logger),
+        logger,
     )
 
     override fun close() {

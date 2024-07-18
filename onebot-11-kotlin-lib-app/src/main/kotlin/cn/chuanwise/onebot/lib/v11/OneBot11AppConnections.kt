@@ -56,7 +56,7 @@ suspend fun OneBot11AppConnection.sendPrivateMessage(userId: Long, message: Mess
         message = message,
         autoEscape = (message as? CqCodeMessageData)?.autoEscape ?: false
     )
-).messageID
+).messageId
 
 suspend fun OneBot11AppConnection.sendPrivateMessageAsync(userId: Long, message: MessageData) = callAsync(
     SEND_PRIVATE_MESSAGE, SendPrivateMessageData(
@@ -83,7 +83,7 @@ suspend fun OneBot11AppConnection.sendGroupMessage(groupId: Long, message: Messa
         message = message,
         autoEscape = (message as? CqCodeMessageData)?.autoEscape ?: false
     )
-).messageID
+).messageId
 
 suspend fun OneBot11AppConnection.sendGroupMessageAsync(groupId: Long, message: MessageData) = callAsync(
     SEND_GROUP_MESSAGE, SendGroupMessageData(
@@ -118,7 +118,7 @@ suspend fun OneBot11AppConnection.sendMessage(
             message = message,
             autoEscape = (message as? CqCodeMessageData)?.autoEscape ?: false
         )
-    ).messageID
+    ).messageId
 
 suspend fun OneBot11AppConnection.sendMessageAsync(
     messageType: String,
@@ -153,23 +153,23 @@ suspend fun OneBot11AppConnection.sendMessageRateLimited(
 /**
  * @see [DELETE_MESSAGE]
  */
-suspend fun OneBot11AppConnection.deleteMessage(messageID: Int) = call(
-    DELETE_MESSAGE, MessageIdData(messageID)
+suspend fun OneBot11AppConnection.deleteMessage(messageId: Int) = call(
+    DELETE_MESSAGE, MessageIdData(messageId)
 )
 
-suspend fun OneBot11AppConnection.deleteMessageAsync(messageID: Int) = callAsync(
-    DELETE_MESSAGE, MessageIdData(messageID)
+suspend fun OneBot11AppConnection.deleteMessageAsync(messageId: Int) = callAsync(
+    DELETE_MESSAGE, MessageIdData(messageId)
 )
 
-suspend fun OneBot11AppConnection.deleteMessageRateLimited(messageID: Int) = callRateLimited(
-    DELETE_MESSAGE, MessageIdData(messageID)
+suspend fun OneBot11AppConnection.deleteMessageRateLimited(messageId: Int) = callRateLimited(
+    DELETE_MESSAGE, MessageIdData(messageId)
 )
 
 /**
  * @see [GET_MESSAGE]
  */
-suspend fun OneBot11AppConnection.getMessage(messageID: Int) = call(
-    GET_MESSAGE, MessageIdData(messageID)
+suspend fun OneBot11AppConnection.getMessage(messageId: Int) = call(
+    GET_MESSAGE, MessageIdData(messageId)
 )
 
 /**

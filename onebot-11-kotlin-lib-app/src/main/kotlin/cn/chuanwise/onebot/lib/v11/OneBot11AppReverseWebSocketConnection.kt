@@ -31,20 +31,21 @@ import cn.chuanwise.onebot.lib.requireConnected
 import cn.chuanwise.onebot.lib.v11.data.ASYNC
 import cn.chuanwise.onebot.lib.v11.data.FAILED
 import cn.chuanwise.onebot.lib.v11.data.OK
-import cn.chuanwise.onebot.lib.v11.data.OneBot11LibModule
 import cn.chuanwise.onebot.lib.v11.data.OneBot11ToImplPack
 import cn.chuanwise.onebot.lib.v11.data.action.HandleQuickOperationData
 import cn.chuanwise.onebot.lib.v11.data.event.EventData
+import cn.chuanwise.onebot.lib.v11.utils.getObjectMapper
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -72,11 +73,15 @@ data class OneBot11AppReverseWebSocketConnectionConfiguration(
     )
 }
 
-class OneBot11AppReverseWebSocketConnection private constructor(
-    private val objectMapper: ObjectMapper,
-    private val logger: KLogger,
+class OneBot11AppReverseWebSocketConnection @JvmOverloads constructor(
     configuration: ReverseWebSocketConnectionConfiguration,
-) : AppReverseWebSocketConnection(objectMapper, logger, configuration), OneBot11AppConnection {
+    job: Job,
+    coroutineContext: CoroutineContext,
+    private val objectMapper: ObjectMapper = getObjectMapper(),
+    private val logger: KLogger = KotlinLogging.logger { },
+) : AppReverseWebSocketConnection(
+    configuration, job, coroutineContext, objectMapper, logger
+), OneBot11AppConnection {
 
     override val incomingChannel: OneBot11AppWebSocketIncomingChannel = OneBot11AppWebSocketIncomingChannel(logger)
 
@@ -95,7 +100,7 @@ class OneBot11AppReverseWebSocketConnection private constructor(
 
     // enable watch dog when connected and heartbeat interval is set.
     // disable watch dog when disconnected.
-    private val watchDogJobs = launch {
+    private val watchDogJobs = launch(job) {
         while (state != State.CONNECTED) {
             // wait util connected
             while (state != State.CONNECTED) {
@@ -107,7 +112,7 @@ class OneBot11AppReverseWebSocketConnection private constructor(
 
             val watchDog = WatchDog(interval)
             val feederUuid = incomingChannel.registerListener(HEARTBEAT_META_EVENT) { watchDog.feed() }
-            val hungryDetector = launch {
+            val hungryDetector = launch(job) {
                 while (state == State.CONNECTED) {
                     delay(interval)
                     if (watchDog.isHungry) {
@@ -125,15 +130,6 @@ class OneBot11AppReverseWebSocketConnection private constructor(
             hungryDetector.cancel("Disconnected.")
         }
     }
-
-    @JvmOverloads
-    constructor(
-        configuration: ReverseWebSocketConnectionConfiguration,
-        objectMapper: ObjectMapper = jacksonObjectMapper().apply {
-            registerModule(OneBot11LibModule())
-        },
-        logger: KLogger = KotlinLogging.logger { },
-    ) : this(objectMapper, logger, configuration)
 
     override suspend fun onReceive(node: JsonNode) {
         val event = objectMapper.treeToValue(node, EventData::class.java)

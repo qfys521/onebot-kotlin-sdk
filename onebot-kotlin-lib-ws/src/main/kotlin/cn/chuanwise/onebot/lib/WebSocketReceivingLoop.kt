@@ -23,6 +23,7 @@ import io.github.oshai.kotlinlogging.KLogger
 import io.ktor.websocket.DefaultWebSocketSession
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -45,6 +46,7 @@ interface WebSocketReceivingLoop : AutoCloseable {
  * @author Chuanwise
  */
 class AppWebSocketReceivingLoop(
+    private val job: Job,
     private val objectMapper: ObjectMapper,
     private val logger: KLogger
 ) : WebSocketReceivingLoop {
@@ -68,7 +70,7 @@ class AppWebSocketReceivingLoop(
 
             logger.debug { "Receiving text: $text" }
 
-            session.launch {
+            session.launch(job) {
                 val optionalEcho = node.getOptionalNotNull(ECHO)
                 if (optionalEcho === null) {
                     // handle events

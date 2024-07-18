@@ -42,9 +42,11 @@ import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -76,11 +78,15 @@ data class OneBot11AppWebSocketConnectionConfiguration(
     )
 }
 
-class OneBot11AppWebSocketConnection private constructor(
-    private val objectMapper: ObjectMapper,
-    private val logger: KLogger,
+class OneBot11AppWebSocketConnection @JvmOverloads constructor(
     configuration: WebSocketConnectionConfiguration,
-) : AppWebSocketConnection(objectMapper, logger, configuration), OneBot11AppConnection {
+    job: Job,
+    coroutineContext: CoroutineContext,
+    private val objectMapper: ObjectMapper = getObjectMapper(),
+    private val logger: KLogger = KotlinLogging.logger { },
+) : AppWebSocketConnection(
+    configuration, job, coroutineContext, objectMapper, logger
+), OneBot11AppConnection {
 
     override val incomingChannel: OneBot11AppWebSocketIncomingChannel = OneBot11AppWebSocketIncomingChannel(logger)
 
@@ -99,7 +105,7 @@ class OneBot11AppWebSocketConnection private constructor(
 
     // enable watch dog when connected and heartbeat interval is set.
     // disable watch dog when disconnected.
-    private val watchDogJobs = launch {
+    private val watchDogJobs = launch(job) {
         while (state != State.DISCONNECTED) {
             // wait util connected
             while (state != State.CONNECTED) {
@@ -113,7 +119,7 @@ class OneBot11AppWebSocketConnection private constructor(
             val feederUuid = incomingChannel.registerListener(HEARTBEAT_META_EVENT) {
                 watchDog.feed()
             }
-            val hungryDetector = launch {
+            val hungryDetector = launch(job) {
                 while (state == State.CONNECTED) {
                     delay(interval)
                     if (watchDog.isHungry) {
@@ -132,13 +138,6 @@ class OneBot11AppWebSocketConnection private constructor(
         }
     }
 
-    @JvmOverloads
-    constructor(
-        configuration: WebSocketConnectionConfiguration,
-        objectMapper: ObjectMapper = getObjectMapper(),
-        logger: KLogger = KotlinLogging.logger { },
-    ) : this(objectMapper, logger, configuration)
-
     override suspend fun onReceive(node: JsonNode) {
         val event = objectMapper.treeToValue(node, EventData::class.java)
         incomingChannel.income(event)?.let {
@@ -151,29 +150,57 @@ class OneBot11AppWebSocketConnection private constructor(
         val resp = doCall(session, receivingLoop, objectMapper, logger, expect, params, CallPolicy.DEFAULT)
         return when (resp.status) {
             OK -> resp.data?.deserializeTo(objectMapper, expect.respType) ?: Unit as R
-            ASYNC -> throw IllegalStateException("Async response.")
-            FAILED -> throw IllegalStateException("Operation failed in implementation.")
-            else -> throw IllegalStateException("Unknown response status: ${resp.status}")
+            ASYNC -> {
+                if (expect.respType.type != Unit::class.java) {
+                    throwResponseException("Unexpected response status: async", resp.message) {
+                        throw IllegalStateException(it)
+                    }
+                } else Unit as R
+            }
+
+            FAILED -> throwResponseException("Operation failed", resp.message) {
+                throw IllegalStateException(it)
+            }
+
+            else -> throwResponseException("Unexpected response status: ${resp.status}", resp.message) {
+                throw IllegalStateException(it)
+            }
         }
     }
 
     override suspend fun <P> callAsync(expect: Expect<P, *>, params: P) {
         val resp = doCall(session, receivingLoop, objectMapper, logger, expect, params, CallPolicy.ASYNC)
         return when (resp.status) {
-            OK -> throw IllegalStateException("Not async response.")
+            OK -> throwResponseException("Unexpected response status: sync", resp.message) {
+                throw IllegalStateException(it)
+            }
+
             ASYNC -> Unit
-            FAILED -> throw IllegalStateException("Failed.")
-            else -> throw IllegalStateException("Unknown response status: ${resp.status}")
+            FAILED -> throwResponseException("Operation failed", resp.message) {
+                throw IllegalStateException(it)
+            }
+
+            else -> throwResponseException("Unexpected response status: ${resp.status}", resp.message) {
+                throw IllegalStateException(it)
+            }
         }
     }
 
     override suspend fun <P> callRateLimited(expect: Expect<P, *>, params: P) {
         val resp = doCall(session, receivingLoop, objectMapper, logger, expect, params, CallPolicy.RATE_LIMITED)
         return when (resp.status) {
-            OK -> throw IllegalStateException("Not async response.")
+            OK -> throwResponseException("Unexpected response status: sync", resp.message) {
+                throw IllegalStateException(it)
+            }
+
             ASYNC -> Unit
-            FAILED -> throw IllegalStateException("Failed.")
-            else -> throw IllegalStateException("Unknown error.")
+            FAILED -> throwResponseException("Operation failed", resp.message) {
+                throw IllegalStateException(it)
+            }
+
+            else -> throwResponseException("Unexpected response status: ${resp.status}", resp.message) {
+                throw IllegalStateException(it)
+            }
         }
     }
 

@@ -36,8 +36,11 @@ import io.ktor.websocket.close
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
@@ -56,13 +59,12 @@ interface ReverseWebSocketConnectionConfiguration {
 }
 
 abstract class ReverseWebSocketConnection(
+    configuration: ReverseWebSocketConnectionConfiguration,
+    private val job: Job,
+    override val coroutineContext: CoroutineContext,
     receivingLoop: WebSocketReceivingLoop,
     logger: KLogger,
-    configuration: ReverseWebSocketConnectionConfiguration
 ) : WebSocketLikeConnection {
-
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    override val coroutineContext: CoroutineContext = coroutineScope.coroutineContext
 
     private val lock = ReentrantReadWriteLock()
     private val condition = lock.writeLock().newCondition()
@@ -225,14 +227,15 @@ abstract class ReverseWebSocketConnection(
                 State.CONNECTED -> runBlocking {
                     disconnect(CloseReason(CloseReason.Codes.NORMAL, "Connection closed."))
                 }
-
                 State.WAITING -> Unit
             }
             lock.write {
                 stateWithoutLock = State.CLOSED
                 sessionWithoutLock = null
                 server.stop()
-                coroutineScope.cancel("Connection closed.")
+                runBlocking {
+                    job.cancelAndJoin()
+                }
             }
         }
     }

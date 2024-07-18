@@ -44,7 +44,9 @@ abstract class HTTPReceivingLoop(
     configuration: HTTPConnectionConfiguration,
 ) : HTTPLikeConnection {
 
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val supervisorJob = SupervisorJob()
+
+    private val coroutineScope = CoroutineScope(supervisorJob + Dispatchers.IO)
     override val coroutineContext: CoroutineContext = coroutineScope.coroutineContext
 
     private val lock = ReentrantReadWriteLock()

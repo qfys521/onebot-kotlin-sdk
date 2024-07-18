@@ -38,7 +38,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 interface MessageEventData : EventData {
     val messageType: String
     val subType: String
-    val messageID: Int
+    val messageId: Int
     val userId: Long
     val message: MessageData
     val rawMessage: String
@@ -79,14 +79,14 @@ data class GroupSenderData(
 
 data class PrivateMessageEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // MESSAGE
     override val postType: String,
     override val messageType: String,
     override val subType: String,
 
-    override val messageID: Int,
+    override val messageId: Int,
     override val userId: Long,
     override val message: MessageData,
     override val rawMessage: String,
@@ -121,12 +121,12 @@ data class AnonymousSenderData(
 
 data class GroupMessageEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
     override val postType: String,
     override val messageType: String,
 
     override val subType: String,
-    override val messageID: Int,
+    override val messageId: Int,
 
     val groupId: Long,
     override val userId: Long,

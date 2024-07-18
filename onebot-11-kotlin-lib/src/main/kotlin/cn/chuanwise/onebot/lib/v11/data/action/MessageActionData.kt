@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class MessageIdData(
-    val messageID: Int
+    val messageId: Int
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -66,8 +66,8 @@ data class GetMessageData(
 
     // "private" or "group"
     val messageType: String?,
-    val messageID: Int,
-    val realID: Int,
+    val messageId: Int,
+    val realId: Int,
     val sender: SenderData,
     val message: MessageData,
 )

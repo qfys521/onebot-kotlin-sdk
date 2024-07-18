@@ -36,7 +36,7 @@ interface MetaEventData : EventData {
 
 data class LifecycleMetaEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "meta_event"
     override val postType: String,
@@ -51,7 +51,7 @@ data class LifecycleMetaEventData(
 
 data class HeartbeatEventData(
     override val time: Long,
-    override val selfID: Long,
+    override val selfId: Long,
 
     // "meta_event"
     override val postType: String,
